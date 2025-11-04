@@ -33,7 +33,7 @@
 #'   signature names, and the values are the correlation coefficients
 #'   (from -1 to 1).
 #'
-#' @importFrom stats cor
+#' @importFrom stats cor var
 #'
 #' @export
 #'
@@ -103,12 +103,17 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
     ncol(exposure_matrix), " samples..."
   )
 
-  cooccur_matrix <- stats::cor(
-    t(exposure_matrix),
-    method = method,
-    use = "pairwise.complete.obs" # Handle potential NAs
+  # Suppress the "standard deviation is zero" warning from stats::cor,
+  # because we already have our own custom, more informative warning.
+  cooccur_matrix <- suppressWarnings(
+    stats::cor(
+      t(exposure_matrix),
+      method = method,
+      use = "pairwise.complete.obs" # Handle potential NAs
+    )
   )
 
   message("Co-occurrence matrix calculated.")
   return(cooccur_matrix)
 }
+
