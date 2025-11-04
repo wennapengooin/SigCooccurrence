@@ -75,7 +75,7 @@ plotCooccurHeatmap <- function(cooccur_matrix,
   max_val <- max(abs(cooccur_matrix), na.rm = TRUE)
   breaks <- seq(-max_val, max_val, length.out = 101)
 
-  # Handle the case where all correlations are 0 (e.g., mock data)
+  # Handle the case where all correlations are 0
   if (max_val == 0) {
     breaks <- seq(-1, 1, length.out = 101)
   }
@@ -83,12 +83,7 @@ plotCooccurHeatmap <- function(cooccur_matrix,
   # --- 3. Create pheatmap ---
   message("Generating heatmap plot...")
 
-  # pheatmap prints by default, but we can capture the object
-  # by setting silent = TRUE in the print() call.
-  # Here we just return the object, and R's auto-print will handle it.
-
   # Replace NAs with 0 for plotting, otherwise clustering can fail
-  # A warning about NA correlations is already given by calcCooccur
   plot_matrix <- cooccur_matrix
   plot_matrix[is.na(plot_matrix)] <- 0
 
@@ -106,3 +101,5 @@ plotCooccurHeatmap <- function(cooccur_matrix,
   return(gg_heatmap)
 }
 
+
+# [END]

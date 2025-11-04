@@ -106,3 +106,5 @@ importMuts <- function(vcf_files, genome, sample_names = NULL) {
   return(muts_grl)
 }
 
+
+# [END]

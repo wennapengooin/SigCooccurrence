@@ -117,3 +117,4 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
   return(cooccur_matrix)
 }
 
+# [END]
