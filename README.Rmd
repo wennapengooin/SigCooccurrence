@@ -46,7 +46,7 @@ To run the shinyApp: Under construction
 This is a basic example which shows you how to solve a common problem:
 
 ```r 
-ls("package:SigCooccurrence") # lists the functions in BacPoSSR
+ls("package:SigCooccurrence") # lists the functions
 browseVignettes("SigCooccurrence") # view all vignettes
 ```
 
