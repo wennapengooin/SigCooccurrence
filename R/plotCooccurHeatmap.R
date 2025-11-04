@@ -24,6 +24,10 @@
 #'
 #' @return A `pheatmap` object representing the heatmap.
 #'
+#' @references
+#' Kolde R (2025). pheatmap: Pretty Heatmaps. \emph{R package version 1.0.13}.
+#' \href{https://github.com/raivokolde/pheatmap}{Link}
+#'
 #' @importFrom stats hclust dist as.dendrogram
 #' @importFrom pheatmap pheatmap
 #' @importFrom grDevices colorRampPalette

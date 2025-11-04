@@ -20,6 +20,12 @@
 #' @return A \code{GRangesList} containing only mutations of the
 #'   specified type.
 #'
+#' @references
+#' Manders, F., Brandsma, A.M., de Kanter, J. et al. (2022).
+#' MutationalPatterns: the one stop shop for the analysis of mutational
+#' processes. \emph{BMC Genomics}, 23, 134.
+#' \href{https://doi.org/10.1186/s12864-022-08357-3}{Link}
+#'
 #' @importFrom MutationalPatterns get_mut_type
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom S4Vectors elementNROWS
