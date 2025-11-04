@@ -54,15 +54,15 @@ browseVignettes("SigCooccurrence") # view all vignettes
 
 <br>
 <br>
-- _importMuts_ : Imports mutation data from VCF files.
+1. *_importMuts_* for Importing mutation data from VCF files.
 <br>
-- _filterMuts_ : Filters the imported mutations by type (SNV, DBS, INDEL).
+2. *_filterMuts_* for filtering the imported mutations by type (SNV, DBS, INDEL).
 <br>
-- _extractSigs_ : Extracts signature exposures via de novo or fitting to COSMIC.
+3. *_extractSigs_* for extracting signature exposures via de novo or fitting to COSMIC.
 <br>
-- _calcCooccur_ : Calculates the pairwise correlation matrix from exposures.
+4. *_calcCooccur_* for calculating the pairwise correlation matrix from exposures.
 <br>
-- _plotCooccurHeatmap_ : Visualizes the co-occurrence matrix as a clustered heatmap.Imports mutation data from VCF files.
+5. *_plotCooccurHeatmap_* for visualizing the co-occurrence matrix as a clustered heatmap.Imports mutation data from VCF files.
 <br>
 <br>
 

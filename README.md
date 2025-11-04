@@ -45,13 +45,13 @@ browseVignettes("SigCooccurrence") # view all vignettes
 use each function, please refer to the vignette and help documentation.
 Below is an overview of the package’s main workflow:
 
-<br> <br> - *importMuts* : Imports mutation data from VCF files. <br> -
-*filterMuts* : Filters the imported mutations by type (SNV, DBS, INDEL).
-<br> - *extractSigs* : Extracts signature exposures via de novo or
-fitting to COSMIC. <br> - *calcCooccur* : Calculates the pairwise
-correlation matrix from exposures. <br> - *plotCooccurHeatmap* :
-Visualizes the co-occurrence matrix as a clustered heatmap.Imports
-mutation data from VCF files. <br> <br>
+<br> <br> 1. **importMuts** for Importing mutation data from VCF files.
+<br> 2. **filterMuts** for filtering the imported mutations by type
+(SNV, DBS, INDEL). <br> 3. **extractSigs** for extracting signature
+exposures via de novo or fitting to COSMIC. <br> 4. **calcCooccur** for
+calculating the pairwise correlation matrix from exposures. <br> 5.
+**plotCooccurHeatmap** for visualizing the co-occurrence matrix as a
+clustered heatmap.Imports mutation data from VCF files. <br> <br>
 
 ## Contributions
 
