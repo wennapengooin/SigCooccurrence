@@ -1,15 +1,11 @@
 Package: SigCooccurrence
+Type: Package
 Title: Analyze and Visualize Mutational Signature Co-occurrence
 Version: 1.0.0
 Authors@R: 
     person("Wendy", "Wan", , email = "wendy.wan@mail.utoronto.ca", role = c("aut", "cre"))
-Description: A tool to analyze and visualize co-occurrence patterns
-    (correlation and mutual exclusivity) between mutational signatures
-    in cancer. The package takes somatic mutation data (VCFs),
-    extracts signature exposures, and computes pairwise co-occurrence
-    metrics. It extends standard signature analysis by focusing on the
-    relationships between signatures, generating visual summaries like
-    clustered heatmaps to reveal novel biological insights.
+Description:
+    A tool to analyze and visualize co-occurrence patterns correlation and mutual exclusivity) between mutational signatures in cancer. The package takes somatic mutation data (VCFs), extracts signature exposures, and computes pairwise co-occurrence metrics. It extends standard signature analysis by focusing on the relationships between signatures, generating visual summaries like clustered heatmaps to reveal novel biological insights.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -17,9 +13,12 @@ RoxygenNote: 7.3.3
 Imports: 
     BiocGenerics,
     GenomicRanges,
+    MutationalPatterns,
     NMF,
     S4Vectors
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Analyze and Visualize Mutational Signature Co-occurrence
+VignetteBuilder: knitr
