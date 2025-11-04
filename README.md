@@ -97,7 +97,9 @@ the plotting function.
 - Pagès H (2025). BSgenome: Software infrastructure for efficient
   representation of full genomes and their SNPs.
   <doi:10.18129/B9.bioc.BSgenome>, R package version 1.78.0,
-  <https://bioconductor.org/packages/BSgenome>.
+  <https://bioconductor.org/packages/BSgenome>. ChatGPT developed by
+  OpenAI was used in the creation of this package only for the purpose
+  of debugging the code.
 
 ## Acknowledgements
 
