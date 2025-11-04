@@ -58,3 +58,13 @@ extract specific mutation types (SNVs, DBS, etc.).
   muts_grl_custom <- importMuts(vcf_files, genome, custom_names)
 }
 }
+\references{
+Manders, F., Brandsma, A.M., de Kanter, J. et al. (2022).
+MutationalPatterns: the one stop shop for the analysis of mutational
+processes. \emph{BMC Genomics}, 23, 134.
+\href{https://doi.org/10.1186/s12864-022-08357-3}{Link}
+
+Pagès, H. (2025). BSgenome: Software infrastructure for efficient
+representation of full genomes and their SNPs. \emph{R package version 1.78.0}.
+\href{https://bioconductor.org/packages/BSgenome}{Link}
+}

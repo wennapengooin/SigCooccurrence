@@ -8,7 +8,8 @@ plotCooccurHeatmap(
   cooccur_matrix,
   cluster_rows = TRUE,
   cluster_cols = TRUE,
-  title = "Signature Co-occurrence Heatmap"
+  title = "Signature Co-occurrence Heatmap",
+  ...
 )
 }
 \arguments{
@@ -21,25 +22,26 @@ cluster the rows.}
 \item{cluster_cols}{A logical value (default: \code{TRUE}) indicating whether to
 cluster the columns.}
 
-\item{title}{An optional title for the plot.}
+\item{title}{An optional title for the plot (default: "Signature
+Co-occurrence Heatmap").}
+
+\item{...}{Additional arguments passed to \code{pheatmap::pheatmap()}.}
 }
 \value{
-A \code{ggplot} object representing the heatmap.
+A \code{pheatmap} object representing the heatmap.
 }
 \description{
 This function visualizes the co-occurrence matrix from \code{calcCooccur()} as
-a clustered heatmap using \code{ggplot2}.
+a clustered heatmap using the \code{pheatmap} package.
 }
 \details{
-The function first performs hierarchical clustering on the co-occurrence
-matrix to group similar signatures together. It then reorders the matrix
-according to the clustering and "melts" it into a long format suitable
-for \code{ggplot2}.
+The function uses \code{pheatmap::pheatmap()} to generate the plot.
+Hierarchical clustering is applied by default to both rows and columns
+to group similar signatures together, and dendrograms are displayed.
 
-The plot uses \code{geom_tile} to create the heatmap. A diverging color scale
-(\code{scale_fill_gradient2}) is used to represent the correlation values,
-with negative correlations (e.g., mutual exclusivity) in blue, positive
-correlations (co-occurrence) in red, and correlations near zero in white.
+A diverging color scale (blue-white-red) is used to represent the
+correlation values, with -1 (blue) for negative correlations,
+1 (red) for positive correlations, and 0 (white) for no correlation.
 }
 \examples{
 \dontrun{
@@ -59,7 +61,11 @@ correlations (co-occurrence) in red, and correlations near zero in white.
 
   # Plot the heatmap
   p <- plotCooccurHeatmap(cooccur_matrix)
-  # To display the plot:
+  # To display the plot (it prints automatically in interactive sessions):
   # print(p)
 }
+}
+\references{
+Kolde R (2025). pheatmap: Pretty Heatmaps. \emph{R package version 1.0.13}.
+\href{https://github.com/raivokolde/pheatmap}{Link}
 }

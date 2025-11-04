@@ -103,3 +103,20 @@ analysis, you will be most interested in the \code{contribution} matrix
   de_novo_exposures <- de_novo_res$contribution
 }
 }
+\references{
+Alexandrov, L.B. et al. (2020). The repertoire of mutational signatures in
+human cancer. \emph{Nature}, 578, 94–101.
+\href{https://doi.org/10.1038/s41586-020-1943-3}{Link}
+
+Gaujoux R, Seoighe C, Sauwen N (2024). The package NMF: manual pages.
+\emph{R package version 0.28}. \href{https://cran.r-project.org/package=NMF}{Link}.
+
+Manders, F., Brandsma, A.M., de Kanter, J. et al. (2022).
+MutationalPatterns: the one stop shop for the analysis of mutational
+processes. \emph{BMC Genomics}, 23, 134.
+\href{https://doi.org/10.1186/s12864-022-08357-3}{Link}
+
+Pagès, H. (2025). BSgenome: Software infrastructure for efficient
+representation of full genomes and their SNPs. \emph{R package version 1.78.0}.
+\href{https://bioconductor.org/packages/BSgenome}{Link}
+}
