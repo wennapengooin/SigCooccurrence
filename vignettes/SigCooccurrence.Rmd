@@ -1,0 +1,232 @@
+---
+title: "Introduction to SigCooccurrence"
+author: "Wendy Wan"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Intro_SigCooccurrence}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+`SigCooccurrence` is an R package developed to provide a user-friendly workflow to move from raw VCF files to a final co-occurrence heatmap, allowing you to explore the relationships between mutational signatures.
+
+We will cover the two main workflows:
+
+1. *Fitting to known COSMIC signatures*: The most common use case.
+
+2. *Extracting de novo signatures*: Useful for exploring novel mutational processes.
+
+## Setup
+
+To install and attach `SigCooccurrence` to your current work session, run the following lines in your R console.
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+library("devtools")
+devtools::install_github("wennapengooin/SigCooccurrence", build_vignettes = TRUE)
+library("SigCooccurrence")
+```
+
+First, we load `SigCooccurrence` and the other packages needed for this tutorial.
+
+```{r, eval = FALSE}
+library(SigCooccurrence)
+library(MutationalPatterns)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(NMF)
+```
+
+To view the functions available in this package, run the following line in your R console.
+
+```{r, eval = FALSE}
+ls("package:SigCooccurrence")
+```
+
+### Example Data
+
+This introduction uses example VCF files from the `MutationalPatterns` package. We can get the file paths to these 9 VCFs (3 colon, 3 intestine, 3 liver) as follows:
+
+```{r, eval = FALSE}
+# Get the file paths to the 9 example VCF files
+vcf_files <- list.files(
+  system.file("extdata", package = "MutationalPatterns"),
+  pattern = "sample.vcf",
+  full.names = TRUE
+)
+
+# You can inspect the first 3 file paths
+# print(vcf_files[1:3])
+
+```
+
+## Core Workflow: Import and Filter
+
+Both workflows (COSMIC and de novo) start with the same two steps: `importMuts()` and `filterMuts()`.
+
+### Step 1: Import Mutations
+
+First, we import the VCF files. We must specify a reference genome (e.g., "hg19") so the package can fetch the correct sequence context for each mutation.
+
+```{r, eval = FALSE}
+# Import the VCF files
+muts_grl <- importMuts(vcf_files = vcf_files, genome = "hg19")
+
+# You will see a message: "Successfully imported mutations for 9 sample(s)."
+# print(muts_grl)
+
+```
+
+### Step 2: Filter by Mutation Type
+
+Mutational signature analysis is performed separately for different mutation types. We will focus on Single Nucleotide Variants (SNVs) for this tutorial. We use `filterMuts()` to get only the SNVs from our imported data.
+
+```{r, eval = FALSE}
+snv_grl <- filterMuts(muts_grl, type = "SNV")
+
+# print(snv_grl)
+
+```
+
+This `snv_grl` object is now ready for signature analysis.
+
+## Option 1: Fit to COSMIC Signatures
+
+This is the most common workflow. We will take our SNV mutations and see how well they can be explained by the known, published COSMIC signatures.
+
+### Step 3a: Extract Signatures (COSMIC)
+
+We use `extractSigs()` with `mode = "fit_to_cosmic"`. This function builds the 96-channel mutation matrix and then fits it to the COSMIC v3.2 signatures.
+
+```{r, eval = FALSE}
+fit_res <- extractSigs(
+  muts_grl = snv_grl,
+  type = "SNV",
+  genome = "hg19",
+  mode = "fit_to_cosmic",
+  cosmic_version = "v3.2" 
+)
+
+# The result is a list. The most important part is $contribution
+exposures <- fit_res$contribution
+
+# View the first 5 signatures for the first 3 samples
+# print(round(exposures[1:5, 1:3], 1))
+
+```
+
+The `exposures` matrix shows the estimated number of mutations from each signature (rows) in each sample (columns).
+
+### Step 4a: Calculate Co-occurrence
+
+Now, we take the `exposures` matrix and calculate the pairwise correlation between all signatures. We use the "spearman" method, which is robust to outliers.
+
+```{r, eval = FALSE}
+# This will warn us about signatures with 0 variance, which is expected!
+cooccur_matrix <- calcCooccur(exposures, method = "spearman")
+
+# View the correlation between the first 5 signatures
+# print(round(cooccur_matrix[1:5, 1:5], 2))
+
+```
+
+### Step 5a: Plot Co-occurrence Heatmap
+
+Finally, we visualize the `cooccur_matrix` as a clustered heatmap. This makes it easy to spot groups of signatures that are positively correlated (red) or negatively correlated (blue).
+
+```{r, eval = FALSE}
+# Generate the heatmap
+# This plot will show which signatures (e.g., SBS1 and SBS5) co-occur
+p_cosmic <- plotCooccurHeatmap(
+  cooccur_matrix,
+  title = "Co-occurrence of COSMIC Signatures (SNV)"
+)
+
+# To display the plot, just run:
+# print(p_cosmic)
+
+```
+
+## Option 2: _De Novo_ Signature Extraction
+
+This workflow is used when you want to discover signatures from your data without using the COSMIC database. This is useful for non-human genomes or for finding novel mutational processes.
+
+### Step 3b: Extract Signatures (De Novo)
+
+For _de novo_ extraction, we must specify the number of signatures we want to find (the `rank`). Estimating the optimal rank is a complex topic, but a good start is to test a small range, like 3 to 7. Here, we will just extract 4 signatures.
+
+We set `mode = "de_novo"` and specify `n_de_novo = 4`. We also set `nmf_nrun` to a low number (like 10) for a quick result. For a real analysis, `nmf_nrun = 100` is recommended for a more stable result.
+
+```{r, eval = FALSE}
+# Note: NMF (Non-negative Matrix Factorization) is computationally intensive
+# and may take a few minutes.
+de_novo_res <- extractSigs(
+  muts_grl = snv_grl,
+  type = "SNV",
+  genome = "hg19",
+  mode = "de_novo",
+  n_de_novo = 4,
+  nmf_nrun = 10 
+)
+
+# The result is a list. We get the $contribution matrix just like before.
+de_novo_exposures <- de_novo_res$contribution
+
+# View the exposures for our 4 new signatures
+# print(round(de_novo_exposures, 1))
+
+```
+
+
+### Step 4b: Calculate Co-occurrence
+
+The process is now identical to the COSMIC workflow. We take the `de_novo_exposures` matrix and calculate the correlation.
+
+```{r, eval = FALSE}
+cooccur_matrix_denovo <- calcCooccur(de_novo_exposures, method = "spearman")
+
+# print(round(cooccur_matrix_denovo, 2))
+
+```
+
+### Step 5b: Plot Co-occurrence Heatmap
+
+Finally, we plot the co-occurrence matrix for our 4 _de novo_ signatures.
+
+```{r, eval = FALSE}
+p_denovo <- plotCooccurHeatmap(
+  cooccur_matrix_denovo,
+  title = "Co-occurrence of De Novo Signatures (n=4)"
+)
+
+# To display the plot, just run:
+# print(p_denovo)
+
+```
+
+## Referencing this Package
+Please use the following citation to reference this package.
+<br>
+
+- Wan, W. (2025) SigCooccurrence: Analyze and Visualize Mutational Signature Co-occurrence. Unpublished. https://github.com/wennapengooin/SigCooccurrence
+
+## References for the Development of this Package
+
+-  Alexandrov, L.B. et al. (2020). The repertoire of mutational signatures in human cancer. Nature, 578, 94–101. https://doi.org/10.1038/s41586-020-1943-3
+- Gaujoux R, Seoighe C, Sauwen N (2024). The package NMF: manual pages. R package version 0.28, https://cran.r-project.org/package=NMF.
+- Kolde R (2025). pheatmap: Pretty Heatmaps. R package version 1.0.13, https://github.com/raivokolde/pheatmap.
+- Manders F, Brandsma AM, de Kanter J, Verheul M, Oka R, van Roosmalen MJ, van der Roest B, van Hoeck A, Cuppen E, van Boxtel R (2022). “MutationalPatterns: The one stop shop for the analysis of mutational processes.” BMC Genomics. doi:10.1186/s12864-022-08357-3.
+- Pagès H (2025). BSgenome: Software infrastructure for efficient representation of full genomes and their SNPs. doi:10.18129/B9.bioc.BSgenome, R package version 1.78.0, https://bioconductor.org/packages/BSgenome.
+
+
+```{r}
+sessionInfo()
+```
