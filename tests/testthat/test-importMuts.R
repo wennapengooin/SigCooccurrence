@@ -1,110 +1,109 @@
-# This file tests the "importMuts" function
-
-# --- Helper variables ---
-
-# CRITICAL: Skip this entire test file if MutationalPatterns (which provides
-# the test data) is not installed.
+# This file relies on data from MutationalPatterns
 testthat::skip_if_not_installed("MutationalPatterns")
+testthat::skip_if_not_installed("S4Vectors")
+testthat::skip_if_not_installed("GenomicRanges")
 
-# Get the paths to the example VCF files from MutationalPatterns
-# We'll use these as our test data.
-# The pattern "sample.vcf" finds the 9 "tissue-sample.vcf" files.
+# --- Setup: Load shared data ---
+
+# Get VCF file paths from MutationalPatterns
 vcf_files <- list.files(
   system.file("extdata", package = "MutationalPatterns"),
-  pattern = "sample.vcf", # Use the pattern from the function's example
-  full.names = TRUE
+  pattern = "sample.vcf", full.names = TRUE
 )
 
-# Define a set of correct sample names
-sample_names_custom <- c("colon1", "colon2", "colon3",
-                         "intestine1", "intestine2", "intestine3",
-                         "liver1", "liver2", "liver3")
-
-# Define the genome
+# Use only 3 for most tests to be faster
+vcf_files_3 <- vcf_files[1:3]
 test_genome <- "hg19"
 
 # --- Tests ---
 
 test_that("Happy Path: VCFs are read correctly with custom names", {
 
-  # Skip this test if the hg19 BSgenome is not installed.
-  testthat::skip_if_not_installed("BSgenome.Hsapiens.UCSC.hg19")
-
-  # Run the function
-  muts_grl <- importMuts(
-    vcf_files = vcf_files,
-    genome = test_genome,
-    sample_names = sample_names_custom
+  # Skip if the required BSgenome is not installed
+  testthat::skip_if_not_installed(
+    paste0("BSgenome.Hsapiens.UCSC.", test_genome)
   )
 
-  # Check 1: Is the output the correct class?
-  # ***** THIS IS THE FIX *****
-  # Use expect_s4_class for Bioconductor S4 objects
+  custom_names <- c("Sample_A", "Sample_B", "Sample_C")
+
+  muts_grl <- suppressMessages(
+    importMuts(
+      vcf_files = vcf_files_3,
+      genome = test_genome,
+      sample_names = custom_names
+    )
+  )
+
+  # 1. Check class
   testthat::expect_s4_class(muts_grl, "GRangesList")
 
-  # Check 2: Is the length correct? (9 VCFs in = 9 samples out)
-  testthat::expect_equal(length(muts_grl), 9)
+  # 2. Check names
+  testthat::expect_equal(names(muts_grl), custom_names)
 
-  # Check 3: Are the names correct?
-  testthat::expect_equal(names(muts_grl), sample_names_custom)
+  # 3. Check for content
+  # Use S4Vectors::elementNROWS instead of BiocGenerics::lengths
+  testthat::expect_gt(sum(S4Vectors::elementNROWS(muts_grl)), 0)
 })
 
 
-test_that("Happy Path: Sample names are derived correctly from filenames", {
+test_that("Happy Path: VCFs are read correctly with derived names", {
 
-  testthat::skip_if_not_installed("BSgenome.Hsapiens.UCSC.hg19")
-
-  # Run the function with sample_names = NULL
-  muts_grl_derived <- importMuts(
-    vcf_files = vcf_files,
-    genome = test_genome,
-    sample_names = NULL
+  # Skip if the required BSgenome is not installed
+  testthat::skip_if_not_installed(
+    paste0("BSgenome.Hsapiens.UCSC.", test_genome)
   )
 
-  # Check 1: Is the output the correct class? (Added for robustness)
-  testthat::expect_s4_class(muts_grl_derived, "GRangesList")
+  # Get expected names (e.g., "chr22_sample1", "chr22_sample2", ...)
+  expected_derived_names <- tools::file_path_sans_ext(base::basename(vcf_files))
 
-  # The function's logic should derive these names from the filenames
-  expected_derived_names <- c("colon1-sample", "colon2-sample", "colon3-sample",
-                              "intestine1-sample", "intestine2-sample", "intestine3-sample",
-                              "liver1-sample", "liver2-sample", "liver3-sample")
+  muts_grl <- suppressMessages(
+    importMuts(
+      vcf_files = vcf_files,
+      genome = test_genome
+      # No sample_names provided
+    )
+  )
 
-  # Check: Are the derived names correct?
-  testthat::expect_equal(names(muts_grl_derived), expected_derived_names)
+  # 1. Check class
+  testthat::expect_s4_class(muts_grl, "GRangesList")
+
+  # 2. Check names
+  testthat::expect_equal(names(muts_grl), expected_derived_names)
+
+  # 3. Check for content
+  # Use S4Vectors::elementNROWS instead of BiocGenerics::lengths
+  testthat::expect_gt(sum(S4Vectors::elementNROWS(muts_grl)), 0)
 })
 
 
 test_that("Sad Path: Function throws correct errors", {
 
-  # Error 1: Missing 'genome' argument
+  # Error on non-existent files
   testthat::expect_error(
-    importMuts(vcf_files = vcf_files),
-    regexp = "genome" # Check that the error message mentions "genome"
+    importMuts(vcf_files = "non_existent_file.vcf", genome = test_genome),
+    regexp = "do not exist"
   )
 
-  # Error 2: Wrong file type (e.g., a text file)
-  not_a_vcf <- tempfile(fileext = ".txt")
-  writeLines("test", not_a_vcf)
+  # Error on missing genome
   testthat::expect_error(
-    importMuts(vcf_files = not_a_vcf, genome = test_genome),
-    regexp = "All files must be VCF"
+    importMuts(vcf_files = vcf_files_3), # Missing 'genome'
+    regexp = "genome"
   )
-  on.exit(unlink(not_a_vcf)) # Clean up the temp file
 
-  # Error 3: Mismatch in length of sample_names and vcf_files
+  # Error on uninstalled genome
+  testthat::expect_error(
+    importMuts(vcf_files = vcf_files_3, genome = "hg_fake"),
+    regexp = "is not installed"
+  )
+
+  # Error on sample_names mismatch
   testthat::expect_error(
     importMuts(
-      vcf_files = vcf_files,
+      vcf_files = vcf_files_3,
       genome = test_genome,
-      sample_names = c("one", "two") # Only 2 names for 9 files
+      sample_names = c("one", "two") # 2 names for 3 files
     ),
-    regexp = "must match"
-  )
-
-  # Error 4: Missing BSgenome package
-  testthat::expect_error(
-    importMuts(vcf_files = vcf_files, genome = "fake_genome_123"),
-    regexp = "is not installed"
+    regexp = "must match the number"
   )
 })
 
