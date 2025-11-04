@@ -1,0 +1,107 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# SigCooccurrence
+
+Analyze and Visualize Mutational Signature Co-occurrence
+
+## Description
+
+`SigCooccurrence` provides a user-friendly workflow for researchers
+exploring mutational signature co-occurrence. It simplifies the process
+of moving from raw somatic mutation data (VCFs) to a final,
+interpretable visualization. The package handles signature extraction,
+computes pairwise correlation metrics, and generates clustered heatmaps,
+allowing users to easily discover which mutational processes tend to
+co-occur or are mutually exclusive in their data.
+
+This package was developed in the following environment: <br> R Version:
+4.4.1 (2024-06-14 ucrt) <br> Platform: x86_64-w64-mingw32/x64 Running
+under: Windows 11 x64 (build 26200)
+
+## Installation
+
+To install the latest version of the package:
+
+``` r
+install.packages("devtools")
+library("devtools")
+devtools::install_github("wennapengooin/SigCooccurrence", build_vignettes = TRUE)
+library("SigCooccurrence")
+```
+
+To run the shinyApp: Under construction
+
+## Overview
+
+This is a basic example which shows you how to solve a common problem:
+
+``` r
+ls("package:SigCooccurrence") # lists the functions in BacPoSSR
+browseVignettes("SigCooccurrence") # view all vignettes
+```
+
+`SigCooccurrence` contains 5 functions. For further details on how to
+use each function, please refer to the vignette and help documentation.
+Below is an overview of the package’s main workflow:
+
+<br> <br> - *importMuts* : Imports mutation data from VCF files. <br> -
+*filterMuts* : Filters the imported mutations by type (SNV, DBS, INDEL).
+<br> - *extractSigs* : Extracts signature exposures via de novo or
+fitting to COSMIC. <br> - *calcCooccur* : Calculates the pairwise
+correlation matrix from exposures. <br> - *plotCooccurHeatmap* :
+Visualizes the co-occurrence matrix as a clustered heatmap.Imports
+mutation data from VCF files. <br> <br>
+
+## Contributions
+
+The author of `SigCooccurrence` is Wendy Wan. `SigCooccurrence` contains
+five functions, all of which were written by the author while making use
+of functions from third-party R packages. The *importMuts* function
+utilizes the *read_vcfs_as_granges* and *get_mutation_types* functions
+from the `MutationalPatterns` package to import and classify mutations,
+and *getBSgenome* from `BSgenome` to load the reference genome. The
+wrapper logic, input validation, and sample name derivation were written
+by the author. The *filterMuts* function utilizes the *get_mut_type*
+function from the `MutationalPatterns` package to filter the mutation
+list. The author wrote the code for input validation and the logic to
+warn users about samples with zero mutations after filtering. The
+*extractSigs* function utilizes MutationalPatterns functions (e.g.,
+*mut_matrix*, *fit_to_signatures*, *extract_signatures*,
+*get_known_signatures*) and the *nmf* function from the `NMF` package to
+perform signature extraction. The author wrote the core logic to build
+the correct mutation matrix based on mutation type (SNV, DBS, INDEL) and
+to route the analysis to either de novo or fitting modes based on user
+input. The *calcCooccur* function utilizes the *cor* function from the
+base `stats` package. The author wrote the code to transpose the
+exposure matrix for correct analysis, validate inputs, and implement the
+warning system for zero-variance signatures. The *plotCooccurHeatmap*
+function utilizes the *pheatmap* function from the `pheatmap` package to
+generate the visualization. The author wrote the code to define the
+diverging color scale and to manage the clustering parameters passed to
+the plotting function.
+
+## References
+
+- Alexandrov, L.B. et al. (2020). The repertoire of mutational
+  signatures in human cancer. Nature, 578, 94–101.
+  <https://doi.org/10.1038/s41586-020-1943-3>
+- Gaujoux R, Seoighe C, Sauwen N (2024). The package NMF: manual pages.
+  R package version 0.28, <https://cran.r-project.org/package=NMF>.
+- Kolde R (2025). pheatmap: Pretty Heatmaps. R package version 1.0.13,
+  <https://github.com/raivokolde/pheatmap>.
+- Manders F, Brandsma AM, de Kanter J, Verheul M, Oka R, van Roosmalen
+  MJ, van der Roest B, van Hoeck A, Cuppen E, van Boxtel R (2022).
+  “MutationalPatterns: The one stop shop for the analysis of mutational
+  processes.” BMC Genomics. <doi:10.1186/s12864-022-08357-3>.
+- Pagès H (2025). BSgenome: Software infrastructure for efficient
+  representation of full genomes and their SNPs.
+  <doi:10.18129/B9.bioc.BSgenome>, R package version 1.78.0,
+  <https://bioconductor.org/packages/BSgenome>.
+
+## Acknowledgements
+
+This package was developed as a part of an assessment for 2025 BCB410H:
+Applied Bioinformatics course at the University of Toronto, Toronto,
+CANADA. SigCooccurrence welcomes issues, enhancement requests, and other
+contributions. To submit an issue, use GitHub issues.
