@@ -16,8 +16,6 @@ Imports:
     MutationalPatterns,
     NMF,
     S4Vectors
-Remotes: 
-    bioc::MutationalPatterns,
 Suggests: 
     knitr,
     rmarkdown,

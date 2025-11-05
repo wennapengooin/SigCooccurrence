@@ -53,6 +53,8 @@ calculating the pairwise correlation matrix from exposures. <br> 5.
 **plotCooccurHeatmap** for visualizing the co-occurrence matrix as a
 clustered heatmap.Imports mutation data from VCF files. <br> <br>
 
+![](./inst/extdata/figure.png)
+
 ## Contributions
 
 The author of `SigCooccurrence` is Wendy Wan. `SigCooccurrence` contains

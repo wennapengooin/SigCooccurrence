@@ -66,6 +66,8 @@ browseVignettes("SigCooccurrence") # view all vignettes
 <br>
 <br>
 
+![](./inst/extdata/figure.png)
+
 ## Contributions
 
 The author of `SigCooccurrence` is Wendy Wan. `SigCooccurrence` contains five functions, all of which were written by the author while making use of functions from third-party R packages.
