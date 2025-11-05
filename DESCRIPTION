@@ -3,7 +3,7 @@ Type: Package
 Title: Analyze and Visualize Mutational Signature Co-occurrence
 Version: 1.0.0
 Authors@R: 
-    person("Wendy", "Wan", , email = "wendy.wan@mail.utoronto.ca", role = c("aut", "cre"))
+    person("Wendy", "Wan", email = "wendy.wan@mail.utoronto.ca", role = c("aut", "cre"))
 Description:
     A tool to analyze and visualize co-occurrence patterns correlation and mutual exclusivity) between mutational signatures in cancer. The package takes somatic mutation data (VCFs), extracts signature exposures, and computes pairwise co-occurrence metrics. It extends standard signature analysis by focusing on the relationships between signatures, generating visual summaries like clustered heatmaps to reveal novel biological insights.
 License: MIT + file LICENSE
