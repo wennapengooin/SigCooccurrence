@@ -48,25 +48,24 @@
 #' }
 filterMuts <- function(muts_grl, type = c("SNV", "DBS", "MBS", "INDEL")) {
 
-  # --- 1. Input Validation ---
+  # --- Input Validation -----------------
   if (!inherits(muts_grl, "GRangesList")) {
     stop("Input `muts_grl` must be a GRangesList object.")
   }
 
-  # Match the user's input type
+  # match the user's input type
   type <- match.arg(toupper(type), c("SNV", "DBS", "MBS", "INDEL"))
   type_lower <- tolower(type)
 
-  # --- 2. Filter using MutationalPatterns ---
+  # --- Filter using MutationalPatterns -----------------
   message(paste0("Filtering for '", type, "' mutations..."))
 
-  # Suppress messages from the underlying function (e.g., about merging)
+  # suppress messages from the underlying function (e.g., about merging)
   filtered_grl <- suppressMessages({
     MutationalPatterns::get_mut_type(muts_grl, type = type_lower)
   })
 
-  # --- 3. Check for empty samples and warn ---
-  # Use S4Vectors::elementNROWS instead of BiocGenerics::lengths
+  # --- Check for empty samples and warn -----------------
   original_lengths <- S4Vectors::elementNROWS(muts_grl)
   filtered_lengths <- S4Vectors::elementNROWS(filtered_grl)
 

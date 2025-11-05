@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Full Workflow ---
+#'   # --- Full Workflow -----------------
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
@@ -61,7 +61,7 @@ plotCooccurHeatmap <- function(cooccur_matrix,
                                title = "Signature Co-occurrence Heatmap",
                                ...) {
 
-  # --- 1. Input Validation ---
+  # --- Input Validation -----------------
   if (!is.matrix(cooccur_matrix) ||
       !is.numeric(cooccur_matrix) ||
       nrow(cooccur_matrix) != ncol(cooccur_matrix)) {
@@ -71,23 +71,23 @@ plotCooccurHeatmap <- function(cooccur_matrix,
     stop("`cooccur_matrix` must have both rownames and colnames.")
   }
 
-  # --- 2. Define Color Scale ---
-  # Create a diverging color palette: Blue -> White -> Red
+  # --- Define Color Scale -----------------
+  # create a diverging color palette: Blue -> White -> Red
   color_palette <- grDevices::colorRampPalette(c("blue", "white", "red"))(100)
 
-  # Define the breaks for the color scale, centered at 0
+  # define the breaks for the color scale, centered at 0
   max_val <- max(abs(cooccur_matrix), na.rm = TRUE)
   breaks <- seq(-max_val, max_val, length.out = 101)
 
-  # Handle the case where all correlations are 0
+  # handle the case where all correlations are 0
   if (max_val == 0) {
     breaks <- seq(-1, 1, length.out = 101)
   }
 
-  # --- 3. Create pheatmap ---
+  # --- Create pheatmap -----------------
   message("Generating heatmap plot...")
 
-  # Replace NAs with 0 for plotting, otherwise clustering can fail
+  # replace NAs with 0 for plotting, otherwise clustering can fail
   plot_matrix <- cooccur_matrix
   plot_matrix[is.na(plot_matrix)] <- 0
 

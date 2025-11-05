@@ -74,11 +74,11 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Setup ---
+#'   # Setup
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
-#'   # --- Example 1: Fit to COSMIC v3.2 SBS signatures ---
+#'   # Example 1: Fit to COSMIC v3.2 SBS signatures
 #'   fit_res <- extractSigs(
 #'     snv_grl,
 #'     type = "SNV",
@@ -89,7 +89,7 @@
 #'   # Get the exposure matrix for the next step
 #'   exposures <- fit_res$contribution
 #'
-#'   # --- Example 2: Extract 5 de novo SBS signatures ---
+#'   # Example 2: Extract 5 de novo SBS signatures
 #'   # This requires more samples and mutations to be stable
 #'   de_novo_res <- extractSigs(
 #'     snv_grl,
@@ -110,7 +110,7 @@ extractSigs <- function(muts_grl,
                         nmf_nrun = 100,
                         cosmic_version = NULL) {
 
-  # --- 1. Input Validation ---
+  # --- Input Validation -----------------
   if (!inherits(muts_grl, "GRangesList")) {
     stop("Input `muts_grl` must be a GRangesList object.")
   }
@@ -121,7 +121,7 @@ extractSigs <- function(muts_grl,
   type <- match.arg(toupper(type), c("SNV", "DBS", "INDEL"))
   mode <- match.arg(mode)
 
-  # Validate mode-specific arguments
+  # validate arguments
   if (mode == "de_novo" && is.null(n_de_novo)) {
     stop("`n_de_novo` (number of signatures) must be provided for 'de_novo' mode.")
   }
@@ -137,16 +137,16 @@ extractSigs <- function(muts_grl,
     )
   }
 
-  # Load the reference genome
+  # load the reference genome
   message("Loading reference genome '", genome, "'...")
   ref_genome <- BSgenome::getBSgenome(
     paste0("BSgenome.Hsapiens.UCSC.", genome)
   )
 
-  # --- 2. Build Mutation Count Matrix ---
+  # --- Build Mutation Count Matrix -----------------
   message(paste0("Building ", type, " mutation count matrix..."))
 
-  # Use the correct MutationalPatterns function based on type
+  # use the correct MutationalPatterns function based on type
   mut_mat <- switch(type,
                     "SNV" = MutationalPatterns::mut_matrix(
                       vcf_list = muts_grl,
@@ -164,20 +164,20 @@ extractSigs <- function(muts_grl,
   # Add a small epsilon to avoid NMF errors with 0-count samples
   mut_mat <- mut_mat + 0.0001
 
-  # --- 3. Execute Selected Mode ---
+  # --- Execute Selected Mode -----------------
 
   if (mode == "de_novo") {
 
-    # --- De Novo Extraction ---
+    # --- De Novo Extraction -----------------
     message(paste0("Extracting ", n_de_novo, " de novo signatures..."))
 
-    # FIX: Explicitly load NMF library to fix `path.package` error in tests
+    # explicitly load NMF library to fix `path.package` error in tests
     if (!requireNamespace("NMF", quietly = TRUE)) {
       stop("Package 'NMF' is required for 'de_novo' mode. Please install it.")
     }
     suppressPackageStartupMessages(library(NMF))
 
-    # Run NMF
+    # run NMF
     signatures_res <- MutationalPatterns::extract_signatures(
       mut_mat,
       rank = n_de_novo,
@@ -189,23 +189,23 @@ extractSigs <- function(muts_grl,
 
   } else {
 
-    # --- Fit to COSMIC ---
+    # --- Fit to COSMIC -----------------
 
-    # Map our 'type' to MutationalPatterns 'muttype'
+    # map 'type' to MutationalPatterns 'muttype'
     muttype_arg <- switch(type,
                           "SNV" = "snv",
                           "DBS" = "dbs",
                           "INDEL" = "indel"
     )
 
-    # Map our 'genome' to MutationalPatterns 'genome'
+    # map 'genome' to MutationalPatterns 'genome'
     genome_arg <- switch(genome,
                          "hg19" = "GRCh37",
                          "hg38" = "GRCh38",
                          stop("Invalid `genome`. Must be 'hg19' or 'hg38'.")
     )
 
-    # Map our 'cosmic_version' to MutationalPatterns 'source'
+    # map 'cosmic_version' to MutationalPatterns 'source'
     source_arg <- paste0("COSMIC_", cosmic_version)
 
     message(paste0(
@@ -218,7 +218,7 @@ extractSigs <- function(muts_grl,
       ")..."
     ))
 
-    # Get the signatures
+    # get signatures
     known_sigs <- tryCatch({
       MutationalPatterns::get_known_signatures(
         muttype = muttype_arg,
@@ -236,7 +236,7 @@ extractSigs <- function(muts_grl,
 
     message(paste0("Fitting to ", ncol(known_sigs), " known signatures..."))
 
-    # Fit signatures
+    # fit signatures
     fit_res <- MutationalPatterns::fit_to_signatures(
       mut_mat,
       signatures = known_sigs

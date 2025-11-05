@@ -41,7 +41,6 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Example with VCF files ---
 #'
 #'   # Get paths to example VCFs
 #'   # (This requires the 'MutationalPatterns' package)

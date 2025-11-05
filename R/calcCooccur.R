@@ -39,7 +39,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Full Workflow ---
+#'   # --- Full Workflow -----------------
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
@@ -62,7 +62,7 @@
 #' }
 calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
 
-  # --- 1. Input Validation ---
+  # --- Input Validation -----------------
   method <- match.arg(method)
 
   if (!is.matrix(exposure_matrix) || !is.numeric(exposure_matrix)) {
@@ -81,7 +81,7 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
     stop("`exposure_matrix` must have at least 2 samples (columns) to correlate.")
   }
 
-  # Warn if there are rows with no variance (e.g., all zeros)
+  # warn if there are rows with no variance
   row_vars <- apply(exposure_matrix, 1, stats::var)
   if (any(row_vars == 0)) {
     zero_var_sigs <- rownames(exposure_matrix)[row_vars == 0]
@@ -92,19 +92,16 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
     )
   }
 
-  # --- 2. Calculate Correlation ---
-
-  # stats::cor() calculates correlations between *columns*.
-  # Our matrix has signatures in *rows*.
-  # We must transpose (t()) the matrix to make signatures the columns.
+  # --- Calculate Correlation -----------------
+.
+  # transpose matrix to make signatures the columns.
   message(
     "Calculating pairwise '", method, "' correlation for ",
     nrow(exposure_matrix), " signatures across ",
     ncol(exposure_matrix), " samples..."
   )
 
-  # Suppress the "standard deviation is zero" warning from stats::cor,
-  # because we already have our own custom, more informative warning.
+  # suppress old warning since we have custom, more informative warning.
   cooccur_matrix <- suppressWarnings(
     stats::cor(
       t(exposure_matrix),
