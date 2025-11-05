@@ -64,7 +64,7 @@
 #' }
 importMuts <- function(vcf_files, genome, sample_names = NULL) {
 
-  # --- 1. Input Validation ---
+  # --- Input Validation -----------------
   if (!is.character(vcf_files) || length(vcf_files) == 0) {
     stop("`vcf_files` must be a character vector of one or more file paths.")
   }
@@ -81,13 +81,13 @@ importMuts <- function(vcf_files, genome, sample_names = NULL) {
     stop("The number of `sample_names` must match the number of VCF files.")
   }
 
-  # --- 2. Resolve Sample Names ---
+  # --- Resolve Sample Names -----------------
   if (is.null(sample_names)) {
     message("`sample_names` not provided. Deriving from file names.")
     sample_names <- tools::file_path_sans_ext(base::basename(vcf_files))
   }
 
-  # --- 3. Load Genome and Read VCFs ---
+  # --- Load Genome and Read VCFs -----------------
   message("Detected VCF files. Reading mutations...")
   ref_genome_pkg <- paste0("BSgenome.Hsapiens.UCSC.", genome)
 
@@ -107,7 +107,7 @@ importMuts <- function(vcf_files, genome, sample_names = NULL) {
     genome = ref_genome
   )
 
-  # --- 4. Final Report ---
+  # --- Final Report -----------------
   message(
     "Successfully imported mutations for ",
     length(muts_grl), " sample(s)."
