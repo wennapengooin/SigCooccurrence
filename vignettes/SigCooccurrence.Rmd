@@ -3,7 +3,7 @@ title: "Introduction to SigCooccurrence"
 author: "Wendy Wan"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Intro_SigCooccurrence}
+  %\VignetteIndexEntry{Introduction to SigCooccurrence}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +11,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 6
 )
 ```
 
@@ -38,7 +40,7 @@ library("SigCooccurrence")
 
 First, we load `SigCooccurrence` and the other packages needed for this tutorial.
 
-```{r, eval = FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(SigCooccurrence)
 library(MutationalPatterns)
 library(BSgenome.Hsapiens.UCSC.hg19)
@@ -49,13 +51,14 @@ To view the functions available in this package, run the following line in your 
 
 ```{r, eval = FALSE}
 ls("package:SigCooccurrence")
+
 ```
 
 ### Example Data
 
 This introduction uses example VCF files from the `MutationalPatterns` package. We can get the file paths to these 9 VCFs (3 colon, 3 intestine, 3 liver) as follows:
 
-```{r, eval = FALSE}
+```{r}
 # Get the file paths to the 9 example VCF files
 vcf_files <- list.files(
   system.file("extdata", package = "MutationalPatterns"),
@@ -64,7 +67,7 @@ vcf_files <- list.files(
 )
 
 # You can inspect the first 3 file paths
-# print(vcf_files[1:3])
+head(vcf_files, 3)
 
 ```
 
@@ -76,12 +79,9 @@ Both workflows (COSMIC and de novo) start with the same two steps: `importMuts()
 
 First, we import the VCF files. We must specify a reference genome (e.g., "hg19") so the package can fetch the correct sequence context for each mutation.
 
-```{r, eval = FALSE}
+```{r}
 # Import the VCF files
 muts_grl <- importMuts(vcf_files = vcf_files, genome = "hg19")
-
-# You will see a message: "Successfully imported mutations for 9 sample(s)."
-# print(muts_grl)
 
 ```
 
@@ -89,10 +89,8 @@ muts_grl <- importMuts(vcf_files = vcf_files, genome = "hg19")
 
 Mutational signature analysis is performed separately for different mutation types. We will focus on Single Nucleotide Variants (SNVs) for this tutorial. We use `filterMuts()` to get only the SNVs from our imported data.
 
-```{r, eval = FALSE}
+```{r}
 snv_grl <- filterMuts(muts_grl, type = "SNV")
-
-# print(snv_grl)
 
 ```
 
@@ -106,7 +104,7 @@ This is the most common workflow. We will take our SNV mutations and see how wel
 
 We use `extractSigs()` with `mode = "fit_to_cosmic"`. This function builds the 96-channel mutation matrix and then fits it to the COSMIC v3.2 signatures.
 
-```{r, eval = FALSE}
+```{r}
 fit_res <- extractSigs(
   muts_grl = snv_grl,
   type = "SNV",
@@ -119,7 +117,7 @@ fit_res <- extractSigs(
 exposures <- fit_res$contribution
 
 # View the first 5 signatures for the first 3 samples
-# print(round(exposures[1:5, 1:3], 1))
+exposures[1:5, 1:3]
 
 ```
 
@@ -129,29 +127,39 @@ The `exposures` matrix shows the estimated number of mutations from each signatu
 
 Now, we take the `exposures` matrix and calculate the pairwise correlation between all signatures. We use the "spearman" method, which is robust to outliers.
 
-```{r, eval = FALSE}
-# This will warn us about signatures with 0 variance, which is expected!
-cooccur_matrix <- calcCooccur(exposures, method = "spearman")
+*Note on Interactive Use*: You can set `save_csv = TRUE` here to save the matrix for use in the Shiny app.
 
-# View the correlation between the first 5 signatures
-# print(round(cooccur_matrix[1:5, 1:5], 2))
+```{r}
+# This will warn us about signatures with 0 variance, which is expected!
+cooccur_matrix <- calcCooccur(exposures, method = "spearman", save_csv = FALSE)
+
+# Set save_csv to TRUE to save for Shiny app
 
 ```
 
-### Step 5a: Plot Co-occurrence Heatmap
+### Step 5a: Summarize Results
+
+Before plotting, we can look at a tabular summary of the strongest relationships using summarizeCooccur(). This shows us the top co-occurring pairs (positive correlation) and mutually exclusive pairs (negative correlation).
+
+```{r}
+
+# Get the top 5 pairs
+summary_table <- summarizeCooccur(cooccur_matrix, top_n = 5)
+
+knitr::kable(summary_table, digits = 2, caption = "Top Co-occurring Pairs")
+
+```
+
+### Step 6a: Plot Co-occurrence Heatmap
 
 Finally, we visualize the `cooccur_matrix` as a clustered heatmap. This makes it easy to spot groups of signatures that are positively correlated (red) or negatively correlated (blue).
 
-```{r, eval = FALSE}
+```{r}
 # Generate the heatmap
-# This plot will show which signatures (e.g., SBS1 and SBS5) co-occur
-p_cosmic <- plotCooccurHeatmap(
+plotCooccurHeatmap(
   cooccur_matrix,
   title = "Co-occurrence of COSMIC Signatures (SNV)"
 )
-
-# To display the plot, just run:
-# print(p_cosmic)
 
 ```
 
@@ -165,23 +173,21 @@ For _de novo_ extraction, we must specify the number of signatures we want to fi
 
 We set `mode = "de_novo"` and specify `n_de_novo = 4`. We also set `nmf_nrun` to a low number (like 10) for a quick result. For a real analysis, `nmf_nrun = 100` is recommended for a more stable result.
 
-```{r, eval = FALSE}
-# Note: NMF (Non-negative Matrix Factorization) is computationally intensive
-# and may take a few minutes.
-de_novo_res <- extractSigs(
-  muts_grl = snv_grl,
-  type = "SNV",
-  genome = "hg19",
-  mode = "de_novo",
-  n_de_novo = 4,
-  nmf_nrun = 10 
-)
+```{r}
+# Note: NMF is computationally intensive and may take a few minutes.
+suppressMessages({
+  de_novo_res <- extractSigs(
+    muts_grl = snv_grl,
+    type = "SNV",
+    genome = "hg19",
+    mode = "de_novo",
+    n_de_novo = 4,
+    nmf_nrun = 10 
+  )
+})
 
 # The result is a list. We get the $contribution matrix just like before.
 de_novo_exposures <- de_novo_res$contribution
-
-# View the exposures for our 4 new signatures
-# print(round(de_novo_exposures, 1))
 
 ```
 
@@ -190,27 +196,53 @@ de_novo_exposures <- de_novo_res$contribution
 
 The process is now identical to the COSMIC workflow. We take the `de_novo_exposures` matrix and calculate the correlation.
 
-```{r, eval = FALSE}
+```{r}
 cooccur_matrix_denovo <- calcCooccur(de_novo_exposures, method = "spearman")
-
-# print(round(cooccur_matrix_denovo, 2))
 
 ```
 
-### Step 5b: Plot Co-occurrence Heatmap
+### Step 5b: Summarize Results
+
+```{r, eval = TRUE}
+# Get the top relationship
+summary_table_denovo <- summarizeCooccur(cooccur_matrix_denovo, top_n = 1)
+knitr::kable(summary_table_denovo, digits = 2)
+
+```
+
+
+### Step 6b: Plot Co-occurrence Heatmap
 
 Finally, we plot the co-occurrence matrix for our 4 _de novo_ signatures.
 
-```{r, eval = FALSE}
-p_denovo <- plotCooccurHeatmap(
+```{r}
+plotCooccurHeatmap(
   cooccur_matrix_denovo,
   title = "Co-occurrence of De Novo Signatures (n=4)"
 )
 
-# To display the plot, just run:
-# print(p_denovo)
+```
+
+## Interactive Visualization (Shiny App)
+
+`SigCooccurrence` includes a Shiny app for interactive exploration. This is particularly useful if you have calculated a co-occurrence matrix and want to explore clustering options dynamically.
+
+To launch the app, run:
+
+```{r, eval = FALSE}
+runSigCooccurrence()
 
 ```
+
+How to use the app:
+
+1. Run `calcCooccur(..., save_csv = TRUE, csv_path = "my_matrix.csv")` to save your matrix.
+
+2. Launch the app.
+
+3. Upload `my_matrix.csv`.
+
+4. Use the checkboxes to toggle clustering.
 
 ## Referencing this Package
 Please use the following citation to reference this package.
