@@ -4,7 +4,12 @@
 \alias{calcCooccur}
 \title{Calculate Pairwise Signature Co-occurrence}
 \usage{
-calcCooccur(exposure_matrix, method = c("spearman", "pearson"))
+calcCooccur(
+  exposure_matrix,
+  method = c("spearman", "pearson"),
+  save_csv = FALSE,
+  csv_path = NULL
+)
 }
 \arguments{
 \item{exposure_matrix}{A numeric matrix of signature exposures
@@ -13,6 +18,12 @@ Must have signatures in rows and samples in columns.}
 
 \item{method}{A character string indicating which correlation coefficient
 is to be computed. One of "spearman" (default) or "pearson".}
+
+\item{save_csv}{Logical (default: FALSE). If TRUE, the co-occurrence matrix
+will be saved as a CSV file.}
+
+\item{csv_path}{Character string. The file path where the CSV should be
+saved (e.g., "results/cooccur.csv"). Required if \code{save_csv} is TRUE.}
 }
 \value{
 A square numeric matrix where both rows and columns are
@@ -45,7 +56,6 @@ network graphs.
 }
 \examples{
 \dontrun{
-  # --- Full Workflow -----------------
   muts_grl <- importMuts(vcf_files, genome = "hg19")
   snv_grl <- filterMuts(muts_grl, type = "SNV")
 
@@ -62,6 +72,12 @@ network graphs.
 
   # Calculate the co-occurrence matrix
   cooccur_matrix <- calcCooccur(exposures, method = "spearman")
+
+  # Calculate AND save to CSV
+  # cooccur_matrix <- calcCooccur(exposures,
+  #                               method = "spearman",
+  #                               save_csv = TRUE,
+  #                               csv_path = "cooccur_results.csv")
 
   # View the top of the matrix
   # print(round(cooccur_matrix[1:5, 1:5], 2))
