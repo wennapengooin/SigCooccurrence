@@ -30,7 +30,11 @@ devtools::install_github("wennapengooin/SigCooccurrence", build_vignettes = TRUE
 library("SigCooccurrence")
 ```
 
-To run the shinyApp: Under construction
+To run the Shiny app:
+
+``` r
+runSigCooccurrence()
+```
 
 ## Overview
 
