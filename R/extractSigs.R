@@ -53,7 +53,7 @@
 #' \href{https://doi.org/10.1038/s41586-020-1943-3}{Link}
 #'
 #' Gaujoux R, Seoighe C, Sauwen N (2024). The package NMF: manual pages.
-#' \emph{R package version 0.28}. \href{https://cran.r-project.org/package=NMF}{Link}.
+#' \emph{R package version 0.28}. \href{https://cran.r-project.org/package=NMF}{Link}
 #'
 #' Manders, F., Brandsma, A.M., de Kanter, J. et al. (2022).
 #' MutationalPatterns: the one stop shop for the analysis of mutational
@@ -74,11 +74,11 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Setup
+#'   # --- Setup ---
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
-#'   # Example 1: Fit to COSMIC v3.2 SBS signatures
+#'   # --- Example 1: Fit to COSMIC v3.2 SBS signatures ---
 #'   fit_res <- extractSigs(
 #'     snv_grl,
 #'     type = "SNV",
@@ -89,7 +89,7 @@
 #'   # Get the exposure matrix for the next step
 #'   exposures <- fit_res$contribution
 #'
-#'   # Example 2: Extract 5 de novo SBS signatures
+#'   # --- Example 2: Extract 5 de novo SBS signatures ---
 #'   # This requires more samples and mutations to be stable
 #'   de_novo_res <- extractSigs(
 #'     snv_grl,
@@ -110,7 +110,7 @@ extractSigs <- function(muts_grl,
                         nmf_nrun = 100,
                         cosmic_version = NULL) {
 
-  # --- Input Validation -----------------
+  # --- 1. Input Validation ---
   if (!inherits(muts_grl, "GRangesList")) {
     stop("Input `muts_grl` must be a GRangesList object.")
   }
@@ -121,7 +121,7 @@ extractSigs <- function(muts_grl,
   type <- match.arg(toupper(type), c("SNV", "DBS", "INDEL"))
   mode <- match.arg(mode)
 
-  # validate arguments
+  # Validate mode-specific arguments
   if (mode == "de_novo" && is.null(n_de_novo)) {
     stop("`n_de_novo` (number of signatures) must be provided for 'de_novo' mode.")
   }
@@ -137,16 +137,16 @@ extractSigs <- function(muts_grl,
     )
   }
 
-  # load the reference genome
+  # Load the reference genome
   message("Loading reference genome '", genome, "'...")
   ref_genome <- BSgenome::getBSgenome(
     paste0("BSgenome.Hsapiens.UCSC.", genome)
   )
 
-  # --- Build Mutation Count Matrix -----------------
+  # --- 2. Build Mutation Count Matrix ---
   message(paste0("Building ", type, " mutation count matrix..."))
 
-  # use the correct MutationalPatterns function based on type
+  # Use the correct MutationalPatterns function based on type
   mut_mat <- switch(type,
                     "SNV" = MutationalPatterns::mut_matrix(
                       vcf_list = muts_grl,
@@ -164,48 +164,60 @@ extractSigs <- function(muts_grl,
   # Add a small epsilon to avoid NMF errors with 0-count samples
   mut_mat <- mut_mat + 0.0001
 
-  # --- Execute Selected Mode -----------------
+  # --- 3. Execute Selected Mode ---
 
   if (mode == "de_novo") {
 
-    # --- De Novo Extraction -----------------
+    # --- De Novo Extraction ---
     message(paste0("Extracting ", n_de_novo, " de novo signatures..."))
 
-    # explicitly load NMF library to fix `path.package` error in tests
+    # Explicitly load NMF namespace to prevent test error
     if (!requireNamespace("NMF", quietly = TRUE)) {
       stop("Package 'NMF' is required for 'de_novo' mode. Please install it.")
     }
-    suppressPackageStartupMessages(library(NMF))
+    suppressPackageStartupMessages(library(NMF, quietly = TRUE))
 
-    # run NMF
-    signatures_res <- MutationalPatterns::extract_signatures(
-      mut_mat,
-      rank = n_de_novo,
-      nrun = nmf_nrun
+    # We must suppress the "Setting seed..." message from NMF
+    signatures_res <- suppressMessages(
+      MutationalPatterns::extract_signatures(
+        mut_mat,
+        rank = n_de_novo,
+        nrun = nmf_nrun
+      )
     )
+
+    # *** FIX: Ensure rows/columns have names ***
+    # De novo extraction doesn't always name the signatures automatically
+    sig_names <- paste0("Signature_", LETTERS[1:n_de_novo])
+
+    # Apply names to contribution matrix (Rows = Signatures)
+    rownames(signatures_res$contribution) <- sig_names
+
+    # Apply names to signature matrix (Cols = Signatures)
+    colnames(signatures_res$signatures) <- sig_names
 
     message("De novo extraction complete.")
     return(signatures_res)
 
   } else {
 
-    # --- Fit to COSMIC -----------------
+    # --- Fit to COSMIC ---
 
-    # map 'type' to MutationalPatterns 'muttype'
+    # Map our 'type' to MutationalPatterns 'muttype'
     muttype_arg <- switch(type,
                           "SNV" = "snv",
                           "DBS" = "dbs",
                           "INDEL" = "indel"
     )
 
-    # map 'genome' to MutationalPatterns 'genome'
+    # Map our 'genome' to MutationalPatterns 'genome'
     genome_arg <- switch(genome,
                          "hg19" = "GRCh37",
                          "hg38" = "GRCh38",
                          stop("Invalid `genome`. Must be 'hg19' or 'hg38'.")
     )
 
-    # map 'cosmic_version' to MutationalPatterns 'source'
+    # Map our 'cosmic_version' to MutationalPatterns 'source'
     source_arg <- paste0("COSMIC_", cosmic_version)
 
     message(paste0(
@@ -218,7 +230,7 @@ extractSigs <- function(muts_grl,
       ")..."
     ))
 
-    # get signatures
+    # Get the signatures
     known_sigs <- tryCatch({
       MutationalPatterns::get_known_signatures(
         muttype = muttype_arg,
@@ -228,15 +240,15 @@ extractSigs <- function(muts_grl,
     }, error = function(e) {
       stop(
         "Could not load COSMIC signatures.\n",
-        "Check `type` ('", type, "'), `cosmic_version` ('", cosmic_version,
-        "'), and `genome` ('", genome, "').\n",
+        "Check `type` ('", type, "'), `cosmic_version` ('",
+        cosmic_version, "'), and `genome` ('", genome, "').\n",
         "Original error: ", e$message
       )
     })
 
     message(paste0("Fitting to ", ncol(known_sigs), " known signatures..."))
 
-    # fit signatures
+    # Fit signatures
     fit_res <- MutationalPatterns::fit_to_signatures(
       mut_mat,
       signatures = known_sigs
@@ -246,6 +258,3 @@ extractSigs <- function(muts_grl,
     return(fit_res)
   }
 }
-
-
-# [END]
