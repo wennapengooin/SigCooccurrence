@@ -28,18 +28,22 @@
 #'   Must have signatures in rows and samples in columns.
 #' @param method A character string indicating which correlation coefficient
 #'   is to be computed. One of "spearman" (default) or "pearson".
+#' @param save_csv Logical (default: FALSE). If TRUE, the co-occurrence matrix
+#'   will be saved as a CSV file.
+#' @param csv_path Character string. The file path where the CSV should be
+#'   saved (e.g., "results/cooccur.csv"). Required if `save_csv` is TRUE.
 #'
 #' @return A square numeric matrix where both rows and columns are
 #'   signature names, and the values are the correlation coefficients
 #'   (from -1 to 1).
 #'
 #' @importFrom stats cor var
+#' @importFrom utils write.csv
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Full Workflow -----------------
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
@@ -57,10 +61,19 @@
 #'   # Calculate the co-occurrence matrix
 #'   cooccur_matrix <- calcCooccur(exposures, method = "spearman")
 #'
+#'   # Calculate AND save to CSV
+#'   # cooccur_matrix <- calcCooccur(exposures,
+#'   #                               method = "spearman",
+#'   #                               save_csv = TRUE,
+#'   #                               csv_path = "cooccur_results.csv")
+#'
 #'   # View the top of the matrix
 #'   # print(round(cooccur_matrix[1:5, 1:5], 2))
 #' }
-calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
+calcCooccur <- function(exposure_matrix,
+                        method = c("spearman", "pearson"),
+                        save_csv = FALSE,
+                        csv_path = NULL) {
 
   # --- Input Validation -----------------
   method <- match.arg(method)
@@ -79,6 +92,17 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
 
   if (ncol(exposure_matrix) < 2) {
     stop("`exposure_matrix` must have at least 2 samples (columns) to correlate.")
+  }
+
+  if (save_csv) {
+    if (is.null(csv_path) || !is.character(csv_path)) {
+      stop("`csv_path` must be provided as a string when `save_csv` is TRUE.")
+    }
+    # wheck if directory exists
+    dir_name <- dirname(csv_path)
+    if (dir_name != "." && !dir.exists(dir_name)) {
+      stop("Directory '", dir_name, "' does not exist. Please create it first.")
+    }
   }
 
   # warn if there are rows with no variance
@@ -111,7 +135,12 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
   )
 
   message("Co-occurrence matrix calculated.")
+
+  # --- Save CSV -----------------
+  if (save_csv) {
+    message("Saving co-occurrence matrix to: ", csv_path)
+    utils::write.csv(cooccur_matrix, file = csv_path, row.names = TRUE)
+  }
+
   return(cooccur_matrix)
 }
-
-# [END]
