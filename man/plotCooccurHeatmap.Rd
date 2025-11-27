@@ -45,7 +45,7 @@ correlation values, with -1 (blue) for negative correlations,
 }
 \examples{
 \dontrun{
-  # --- Full Workflow ---
+  # --- Full Workflow -----------------
   muts_grl <- importMuts(vcf_files, genome = "hg19")
   snv_grl <- filterMuts(muts_grl, type = "SNV")
 

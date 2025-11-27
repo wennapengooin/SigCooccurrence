@@ -74,11 +74,11 @@ analysis, you will be most interested in the \code{contribution} matrix
 }
 \examples{
 \dontrun{
-  # --- Setup ---
+  # Setup
   muts_grl <- importMuts(vcf_files, genome = "hg19")
   snv_grl <- filterMuts(muts_grl, type = "SNV")
 
-  # --- Example 1: Fit to COSMIC v3.2 SBS signatures ---
+  # Example 1: Fit to COSMIC v3.2 SBS signatures
   fit_res <- extractSigs(
     snv_grl,
     type = "SNV",
@@ -89,7 +89,7 @@ analysis, you will be most interested in the \code{contribution} matrix
   # Get the exposure matrix for the next step
   exposures <- fit_res$contribution
 
-  # --- Example 2: Extract 5 de novo SBS signatures ---
+  # Example 2: Extract 5 de novo SBS signatures
   # This requires more samples and mutations to be stable
   de_novo_res <- extractSigs(
     snv_grl,

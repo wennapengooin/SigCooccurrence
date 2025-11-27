@@ -93,7 +93,7 @@ calcCooccur <- function(exposure_matrix, method = c("spearman", "pearson")) {
   }
 
   # --- Calculate Correlation -----------------
-.
+
   # transpose matrix to make signatures the columns.
   message(
     "Calculating pairwise '", method, "' correlation for ",
