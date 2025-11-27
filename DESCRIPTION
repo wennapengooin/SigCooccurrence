@@ -12,11 +12,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
     BiocGenerics,
+    BSgenome,
     dplyr,
     GenomicRanges,
+    magrittr,
     MutationalPatterns,
     NMF,
-    S4Vectors
+    pheatmap,
+    S4Vectors,
+    shiny
 Suggests: 
     knitr,
     rmarkdown,
