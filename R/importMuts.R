@@ -58,7 +58,6 @@
 #'
 #'   # 2. Import mutations with custom sample names
 #'   custom_names <- c("Sample_A", "Sample_B", "Sample_C")
-#'   # (Assuming vcf_files has length 3)
 #'   muts_grl_custom <- importMuts(vcf_files, genome, custom_names)
 #' }
 importMuts <- function(vcf_files, genome, sample_names = NULL) {

@@ -47,7 +47,7 @@ summarizeCooccur <- function(cooccur_matrix, top_n = 10) {
   long_df <- reshape2::melt(cooccur_matrix, na.rm = TRUE)
   colnames(long_df) <- c("Signature_A", "Signature_B", "Correlation")
 
-  # ensure columns are character, not factor, for string comparison
+  # ensure columns are character
   long_df$Signature_A <- as.character(long_df$Signature_A)
   long_df$Signature_B <- as.character(long_df$Signature_B)
 
@@ -75,3 +75,6 @@ summarizeCooccur <- function(cooccur_matrix, top_n = 10) {
 
   return(summary_table)
 }
+
+
+# [END]

@@ -62,13 +62,13 @@
 #'   cooccur_matrix <- calcCooccur(exposures, method = "spearman")
 #'
 #'   # Calculate AND save to CSV
-#'   # cooccur_matrix <- calcCooccur(exposures,
-#'   #                               method = "spearman",
-#'   #                               save_csv = TRUE,
-#'   #                               csv_path = "cooccur_results.csv")
+#'   cooccur_matrix <- calcCooccur(exposures,
+#'                                 method = "spearman",
+#'                                 save_csv = TRUE,
+#'                                 csv_path = "cooccur_results.csv")
 #'
 #'   # View the top of the matrix
-#'   # print(round(cooccur_matrix[1:5, 1:5], 2))
+#'   print(round(cooccur_matrix[1:5, 1:5], 2))
 #' }
 calcCooccur <- function(exposure_matrix,
                         method = c("spearman", "pearson"),
@@ -144,3 +144,6 @@ calcCooccur <- function(exposure_matrix,
 
   return(cooccur_matrix)
 }
+
+
+# [END]
