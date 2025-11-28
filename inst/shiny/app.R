@@ -2,6 +2,7 @@
 library(shiny)
 library(SigCooccurrence)
 library(pheatmap)
+library(dplyr)
 
 ui <- fluidPage(
 
@@ -13,7 +14,6 @@ ui <- fluidPage(
 
       helpText("Analyze and visualize mutational signature co-occurrence patterns."),
 
-      # select file
       fileInput("file1", "Upload Co-occurrence Matrix (.csv)",
                 multiple = FALSE,
                 accept = c("text/csv",
@@ -21,26 +21,45 @@ ui <- fluidPage(
                            ".csv")),
 
       actionButton("load_demo", "Load Demo Data"),
-
       tags$hr(),
 
-      # clustering options
+      tags$h4("Heatmap Settings"),
       checkboxInput("cluster_rows", "Cluster Rows", TRUE),
       checkboxInput("cluster_cols", "Cluster Columns", TRUE),
-
       tags$hr(),
 
-      # download button
+      tags$h4("Summary Settings"),
+      numericInput("top_n", "Number of Top Pairs to Show:",
+                   value = 5, min = 1, max = 50),
+      tags$hr(),
+
       downloadButton("downloadPlot", "Download Heatmap")
     ),
 
-    # panel displaying outputs
     mainPanel(
 
-      plotOutput("heatmapPlot", height = "600px"),
-
-      tags$h4("Data Preview"),
-      tableOutput("contents")
+      tabsetPanel(type = "tabs",
+                  tabPanel("Heatmap",
+                           plotOutput("heatmapPlot", height = "600px")
+                  ),
+                  # UPDATED: Three separate summary tabs
+                  tabPanel("Top Co-occurring",
+                           tags$h4("Top Co-occurring Signature Pairs"),
+                           tableOutput("table_cooccur")
+                  ),
+                  tabPanel("Top Mutually Exclusive",
+                           tags$h4("Top Mutually Exclusive Signature Pairs"),
+                           tableOutput("table_mutex")
+                  ),
+                  tabPanel("No Correlation",
+                           tags$h4("Pairs with Near-Zero Correlation (-0.1 to 0.1)"),
+                           tableOutput("table_no_cor")
+                  ),
+                  tabPanel("Raw Data",
+                           tags$h4("Input Matrix Preview"),
+                           tableOutput("contents")
+                  )
+      )
     )
   )
 )
@@ -53,18 +72,14 @@ server <- function(input, output, session) {
     req(input$file1)
     tryCatch(
       {
-        # read csv
         df <- read.csv(input$file1$datapath, row.names = 1, check.names = FALSE)
         values$matrix_data <- as.matrix(df)
       },
-      error = function(e) {
-        stop(safeError(e))
-      }
+      error = function(e) { stop(safeError(e)) }
     )
   })
 
   observeEvent(input$load_demo, {
-
     demo_path <- system.file("extdata", "demo_cooccur.csv", package = "SigCooccurrence")
 
     if (demo_path != "" && file.exists(demo_path)) {
@@ -83,16 +98,42 @@ server <- function(input, output, session) {
     }
   })
 
-  # render heatmap
-  output$heatmapPlot <- renderPlot({
+  summary_data <- reactive({
     req(values$matrix_data)
 
+    SigCooccurrence::summarizeCooccur(values$matrix_data, top_n = 10)
+  })
+
+  output$heatmapPlot <- renderPlot({
+    req(values$matrix_data)
     plotCooccurHeatmap(
       cooccur_matrix = values$matrix_data,
       cluster_rows = input$cluster_rows,
       cluster_cols = input$cluster_cols,
       title = "Signature Co-occurrence"
     )
+  })
+
+  output$table_cooccur <- renderTable({
+    req(summary_data())
+    summary_data() %>%
+      dplyr::filter(Type == "Co-occurrence") %>%
+      head(input$top_n)
+  })
+
+  output$table_mutex <- renderTable({
+    req(summary_data())
+    summary_data() %>%
+      dplyr::filter(Type == "Mutual Exclusivity") %>%
+      head(input$top_n)
+  })
+
+  output$table_no_cor <- renderTable({
+    req(summary_data())
+    summary_data() %>%
+      dplyr::filter(Correlation > -0.1 & Correlation < 0.1) %>%
+      head(input$top_n) %>%
+      dplyr::mutate(Type = "No Correlation")
   })
 
   output$contents <- renderTable({
@@ -104,15 +145,12 @@ server <- function(input, output, session) {
     filename = function() { paste("cooccurrence_heatmap", ".png", sep = "") },
     content = function(file) {
       req(values$matrix_data)
-
       p <- plotCooccurHeatmap(
         cooccur_matrix = values$matrix_data,
         cluster_rows = input$cluster_rows,
         cluster_cols = input$cluster_cols,
         title = "Signature Co-occurrence"
       )
-
-      # save as png
       png(file, width = 800, height = 700)
       print(p)
       dev.off()
