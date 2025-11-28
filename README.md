@@ -54,7 +54,7 @@ Below is an overview of the package’s main workflow:
 (SNV, DBS, INDEL). <br> 3. **extractSigs** for extracting signature
 exposures via de novo or fitting to COSMIC. <br> 4. **calcCooccur** for
 calculating the pairwise correlation matrix from exposures. <br> 5.
-*summarizeCooccur* for generating a summary table of the top
+**summarizeCooccur** for generating a summary table of the top
 co-occurring and mutually exclusive pairs. <br> 6.
 **plotCooccurHeatmap** for visualizing the co-occurrence matrix as a
 clustered heatmap.Imports mutation data from VCF files. <br> <br>

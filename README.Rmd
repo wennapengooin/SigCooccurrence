@@ -66,7 +66,7 @@ browseVignettes("SigCooccurrence") # view all vignettes
 <br>
 4. *_calcCooccur_* for calculating the pairwise correlation matrix from exposures.
 <br>
-5. *summarizeCooccur* for generating a summary table of the top co-occurring and mutually exclusive pairs.
+5. *_summarizeCooccur_* for generating a summary table of the top co-occurring and mutually exclusive pairs.
 <br>
 6. *_plotCooccurHeatmap_* for visualizing the co-occurrence matrix as a clustered heatmap.Imports mutation data from VCF files.
 <br>
