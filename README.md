@@ -30,11 +30,34 @@ devtools::install_github("wennapengooin/SigCooccurrence", build_vignettes = TRUE
 library("SigCooccurrence")
 ```
 
-To run the Shiny app:
+## Shiny App
+
+### To run app:
 
 ``` r
 runSigCooccurrence()
 ```
+
+### Built-in Demo Data:
+
+The app includes built-in demo data that allows you to explore the
+features immediately.
+
+- Dataset: `SigCooccurrence` demo matrix (Spearman correlation of COSMIC
+  signatures).
+
+- Access: Click the “Load Demo Data” button in the app sidebar.
+
+Description: A pre-calculated co-occurrence matrix derived from the
+example VCF files included in the package.
+
+Upload Your Own Data: You can upload your own co-occurrence matrix
+(generated via `calcCooccur(..., save_csv = TRUE)`).
+
+Format: CSV file (`.csv`).
+
+Structure: A square symmetric matrix where row names and column names
+are signatures, and values are correlation coefficients.
 
 ## Overview
 
@@ -49,10 +72,10 @@ browseVignettes("SigCooccurrence") # view all vignettes
 use each function, please refer to the vignette and help documentation.
 Below is an overview of the package’s main workflow:
 
-<br> <br> 1. **importMuts** for Importing mutation data from VCF files.
-<br> 2. **filterMuts** for filtering the imported mutations by type
-(SNV, DBS, INDEL). <br> 3. **extractSigs** for extracting signature
-exposures via de novo or fitting to COSMIC. <br> 4. **calcCooccur** for
+<br> 1. **importMuts** for Importing mutation data from VCF files. <br>
+2. **filterMuts** for filtering the imported mutations by type (SNV,
+DBS, INDEL). <br> 3. **extractSigs** for extracting signature exposures
+via de novo or fitting to COSMIC. <br> 4. **calcCooccur** for
 calculating the pairwise correlation matrix from exposures. <br> 5.
 **summarizeCooccur** for generating a summary table of the top
 co-occurring and mutually exclusive pairs. <br> 6.
