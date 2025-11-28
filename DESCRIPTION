@@ -24,6 +24,7 @@ Imports:
 BiocViews:
     MutationalPatterns,
     BSgenome,
+    BSgenome.Hsapiens.UCSC.hg19,
     BioBase,
     BiocGenerics,
     S4Vectors,
