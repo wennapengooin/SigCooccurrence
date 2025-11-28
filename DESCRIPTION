@@ -11,20 +11,24 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
-    dplyr,
-    magrittr,
+    MutationalPatterns,
+    BSgenome,
+    BiocGenerics,
+    S4Vectors,
+    GenomicRanges,
     NMF,
     pheatmap,
-    shiny
+    RColorBrewer,
+    grDevices,
+    stats,
+    utils,
+    shiny,
+    dplyr,
+    reshape2,
+    magrittr
 Suggests: 
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
-Remotes:
-    bioc::BiocGenerics,
-    bioc::BSgenome,
-    bioc::GenomicRanges,
-    bioc::MutationalPatterns,
-    bioc::S4Vectors
 Config/testthat/edition: 3
 VignetteBuilder: knitr
