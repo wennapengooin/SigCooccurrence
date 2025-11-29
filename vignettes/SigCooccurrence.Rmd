@@ -76,7 +76,7 @@ Both workflows (COSMIC and de novo) start with the same two steps: `importMuts()
 
 First, we import the VCF files. We must specify a reference genome (e.g., "hg19") so the package can fetch the correct sequence context for each mutation.
 
-```{r}
+```{r, message=FALSE}
 # Import the VCF files
 muts_grl <- importMuts(vcf_files = vcf_files, genome = "hg19")
 
@@ -86,7 +86,7 @@ muts_grl <- importMuts(vcf_files = vcf_files, genome = "hg19")
 
 Mutational signature analysis is performed separately for different mutation types. We will focus on Single Nucleotide Variants (SNVs) for this tutorial. We use `filterMuts()` to get only the SNVs from our imported data.
 
-```{r}
+```{r, message=FALSE}
 snv_grl <- filterMuts(muts_grl, type = "SNV")
 
 ```
@@ -101,7 +101,7 @@ This is the most common workflow. We will take our SNV mutations and see how wel
 
 We use `extractSigs()` with `mode = "fit_to_cosmic"`. This function builds the 96-channel mutation matrix and then fits it to the COSMIC v3.2 signatures.
 
-```{r}
+```{r, message=FALSE}
 fit_res <- extractSigs(
   muts_grl = snv_grl,
   type = "SNV",
@@ -123,7 +123,7 @@ Now, we take the `exposures` matrix and calculate the pairwise correlation betwe
 
 *Note on Interactive Use*: You can set `save_csv = TRUE` here to save the matrix for use in the Shiny app.
 
-```{r}
+```{r, message=FALSE}
 # This will warn us about signatures with 0 variance, which is expected!
 cooccur_matrix <- calcCooccur(exposures, method = "spearman", save_csv = FALSE)
 
@@ -136,7 +136,6 @@ cooccur_matrix <- calcCooccur(exposures, method = "spearman", save_csv = FALSE)
 Before plotting, we can look at a tabular summary of the strongest relationships using summarizeCooccur(). This shows us the top co-occurring pairs (positive correlation) and mutually exclusive pairs (negative correlation).
 
 ```{r}
-
 # Get the top 5 pairs
 summary_table <- summarizeCooccur(cooccur_matrix, top_n = 5)
 
@@ -190,7 +189,7 @@ de_novo_exposures <- de_novo_res$contribution
 
 The process is now identical to the COSMIC workflow. We take the `de_novo_exposures` matrix and calculate the correlation.
 
-```{r}
+```{r, message=FALSE}
 cooccur_matrix_denovo <- calcCooccur(de_novo_exposures, method = "spearman")
 
 ```
