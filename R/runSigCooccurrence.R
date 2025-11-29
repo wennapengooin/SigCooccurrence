@@ -18,7 +18,7 @@
 #'   runSigCooccurrence()
 #' }
 runSigCooccurrence <- function() {
-  appDir <- system.file("shiny", package = "SigCooccurrence")
+  appDir <- system.file("shiny-scripts", package = "SigCooccurrence")
   action_shiny <- shiny::runApp(appDir, display.mode = "normal")
   return(action_shiny)
 }
