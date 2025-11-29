@@ -19,12 +19,8 @@
 #' }
 runSigCooccurrence <- function() {
   appDir <- system.file("shiny", package = "SigCooccurrence")
-
-  if (appDir == "") {
-    stop("Could not find example directory. Try re-installing `SigCooccurrence`.", call. = FALSE)
-  }
-
-  shiny::runApp(appDir, display.mode = "normal")
+  action_shiny <- shiny::runApp(appDir, display.mode = "normal")
+  return(action_shiny)
 }
 
 
