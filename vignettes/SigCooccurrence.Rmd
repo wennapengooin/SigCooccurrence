@@ -66,9 +66,6 @@ vcf_files <- list.files(
   full.names = TRUE
 )
 
-# You can inspect the first 3 file paths
-head(vcf_files, 3)
-
 ```
 
 ## Core Workflow: Import and Filter
@@ -115,9 +112,6 @@ fit_res <- extractSigs(
 
 # The result is a list. The most important part is $contribution
 exposures <- fit_res$contribution
-
-# View the first 5 signatures for the first 3 samples
-exposures[1:5, 1:3]
 
 ```
 
