@@ -36,10 +36,11 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # --- Full Workflow -----------------
+#'   # Setup
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
+#'   # Extract signature
 #'   fit_res <- extractSigs(
 #'     snv_grl,
 #'     type = "SNV",
@@ -50,10 +51,9 @@
 #'   exposures <- fit_res$contribution
 #'   cooccur_matrix <- calcCooccur(exposures)
 #'
-#'   # Plot the heatmap
+#'   # Plot and display heatmap
 #'   p <- plotCooccurHeatmap(cooccur_matrix)
-#'   # To display the plot (it prints automatically in interactive sessions):
-#'   # print(p)
+#'   print(p)
 #' }
 plotCooccurHeatmap <- function(cooccur_matrix,
                                cluster_rows = TRUE,

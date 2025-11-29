@@ -44,6 +44,7 @@
 #'
 #' @examples
 #' \dontrun{
+#'   # Setup
 #'   muts_grl <- importMuts(vcf_files, genome = "hg19")
 #'   snv_grl <- filterMuts(muts_grl, type = "SNV")
 #'
@@ -66,9 +67,6 @@
 #'                                 method = "spearman",
 #'                                 save_csv = TRUE,
 #'                                 csv_path = "cooccur_results.csv")
-#'
-#'   # View the top of the matrix
-#'   print(round(cooccur_matrix[1:5, 1:5], 2))
 #' }
 calcCooccur <- function(exposure_matrix,
                         method = c("spearman", "pearson"),

@@ -42,21 +42,13 @@
 #' @examples
 #' \dontrun{
 #'
-#'   # Get paths to example VCFs
-#'   # (This requires the 'MutationalPatterns' package)
-#'   vcf_files <- list.files(
-#'     system.file("extdata", package = "MutationalPatterns"),
-#'     pattern = "sample.vcf", full.names = TRUE
-#'   )
-#'
 #'   # Define the reference genome
-#'   # (Requires BiocManager::install("BSgenome.Hsapiens.UCSC.hg19"))
 #'   genome <- "hg19"
 #'
-#'   # 1. Import mutations with derived sample names
+#'   # Example 1. Import mutations with derived sample names
 #'   muts_grl <- importMuts(vcf_files, genome = genome)
 #'
-#'   # 2. Import mutations with custom sample names
+#'   # Example 2. Import mutations with custom sample names
 #'   custom_names <- c("Sample_A", "Sample_B", "Sample_C")
 #'   muts_grl_custom <- importMuts(vcf_files, genome, custom_names)
 #' }
